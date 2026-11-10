@@ -4,6 +4,9 @@ AGED_BRIE = "Aged Brie"
 BACKSTAGE_PASSES = "Backstage passes to a TAFKAL80ETC concert"
 SULFURAS = "Sulfuras, Hand of Ragnaros"
 
+MAX_QUALITY = 50
+MIN_QUALITY = 0
+
 
 class GildedRose(object):
 
@@ -25,33 +28,36 @@ class GildedRose(object):
             self._update_normal_item(item)
 
     def _update_aged_brie(self, item):
-        if item.quality < 50:
-            item.quality = item.quality + 1
+        self._increase_quality(item)
         item.sell_in = item.sell_in - 1
         if item.sell_in < 0:
-            if item.quality < 50:
-                item.quality = item.quality + 1
+            self._increase_quality(item)
 
     def _update_backstage_passes(self, item):
-        if item.quality < 50:
-            item.quality = item.quality + 1
-            if item.sell_in < 11:
-                if item.quality < 50:
-                    item.quality = item.quality + 1
-            if item.sell_in < 6:
-                if item.quality < 50:
-                    item.quality = item.quality + 1
+        self._increase_quality(item)
+        if item.sell_in < 11:
+            self._increase_quality(item)
+        if item.sell_in < 6:
+            self._increase_quality(item)
         item.sell_in = item.sell_in - 1
         if item.sell_in < 0:
-            item.quality = item.quality - item.quality
+            item.quality = MIN_QUALITY
 
     def _update_normal_item(self, item):
-        if item.quality > 0:
-            item.quality = item.quality - 1
+        self._decrease_quality(item)
         item.sell_in = item.sell_in - 1
         if item.sell_in < 0:
-            if item.quality > 0:
-                item.quality = item.quality - 1
+            self._decrease_quality(item)
+
+    @staticmethod
+    def _increase_quality(item):
+        if item.quality < MAX_QUALITY:
+            item.quality = item.quality + 1
+
+    @staticmethod
+    def _decrease_quality(item):
+        if item.quality > MIN_QUALITY:
+            item.quality = item.quality - 1
 
 
 class Item:

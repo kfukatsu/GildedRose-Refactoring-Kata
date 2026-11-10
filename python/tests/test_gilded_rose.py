@@ -6,6 +6,7 @@ from gilded_rose import Item, GildedRose
 AGED_BRIE = "Aged Brie"
 SULFURAS = "Sulfuras, Hand of Ragnaros"
 BACKSTAGE = "Backstage passes to a TAFKAL80ETC concert"
+CONJURED = "Conjured Mana Cake"
 
 
 def update(name, sell_in, quality):
@@ -99,6 +100,28 @@ class BackstagePassesTest(unittest.TestCase):
             with self.subTest(sell_in=sell_in):
                 item = update(BACKSTAGE, sell_in, 49)
                 self.assertEqual(50, item.quality)
+
+
+class ConjuredItemTest(unittest.TestCase):
+    def test_品質が通常の2倍の速さで下がる(self):
+        item = update(CONJURED, 10, 20)
+        self.assertEqual((9, 18), (item.sell_in, item.quality))
+
+    def test_販売期限を過ぎると品質が4下がる(self):
+        item = update(CONJURED, 0, 20)
+        self.assertEqual((-1, 16), (item.sell_in, item.quality))
+
+    def test_品質は負にならない(self):
+        item = update(CONJURED, 5, 1)
+        self.assertEqual(0, item.quality)
+
+    def test_販売期限切れでも品質は負にならない(self):
+        item = update(CONJURED, 0, 3)
+        self.assertEqual(0, item.quality)
+
+    def test_名前がConjuredで始まるアイテムすべてに適用される(self):
+        item = update("Conjured Sword", 10, 20)
+        self.assertEqual(18, item.quality)
 
 
 if __name__ == '__main__':

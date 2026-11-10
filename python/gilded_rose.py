@@ -3,6 +3,7 @@
 AGED_BRIE = "Aged Brie"
 BACKSTAGE_PASSES = "Backstage passes to a TAFKAL80ETC concert"
 SULFURAS = "Sulfuras, Hand of Ragnaros"
+CONJURED_PREFIX = "Conjured"
 
 MAX_QUALITY = 50
 MIN_QUALITY = 0
@@ -24,6 +25,8 @@ class GildedRose(object):
             self._update_aged_brie(item)
         elif item.name == BACKSTAGE_PASSES:
             self._update_backstage_passes(item)
+        elif item.name.startswith(CONJURED_PREFIX):
+            self._update_conjured_item(item)
         else:
             self._update_normal_item(item)
 
@@ -49,15 +52,21 @@ class GildedRose(object):
         if item.sell_in < 0:
             self._decrease_quality(item)
 
+    def _update_conjured_item(self, item):
+        self._decrease_quality(item, 2)
+        item.sell_in = item.sell_in - 1
+        if item.sell_in < 0:
+            self._decrease_quality(item, 2)
+
     @staticmethod
     def _increase_quality(item):
         if item.quality < MAX_QUALITY:
             item.quality = item.quality + 1
 
     @staticmethod
-    def _decrease_quality(item):
+    def _decrease_quality(item, amount=1):
         if item.quality > MIN_QUALITY:
-            item.quality = item.quality - 1
+            item.quality = max(MIN_QUALITY, item.quality - amount)
 
 
 class Item:
